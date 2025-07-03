@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Tool Directory</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🧠 AI Tool Directory</h1>
+    <input type="text" id="search" placeholder="Search tools..." />
+  </header>
+
+  <main>
+    <section class="filters">
+      <label>Category:
+        <select id="category">
+          <option value="">All</option>
+          <option value="Writing">Writing</option>
+          <option value="Design">Design</option>
+          <option value="Coding">Coding</option>
+        </select>
+      </label>
+    </section>
+
+    <section id="tool-list"></section>
+
+    <section class="favorites">
+      <h2>❤️ Favorites</h2>
+      <div id="favorites"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 AI Tool Directory</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
