@@ -6,23 +6,36 @@
   <title>AI Tool Directory</title>
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Load Supabase JS Client (Before Your Own Script) -->
+  <!-- Load Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/ @supabase/supabase-js@2"></script>
 </head>
 <body>
   <header>
     <h1>🧠 AI Tool Directory</h1>
-    <input type="text" id="search" placeholder="Search tools..." />
+    <input type="text" id="search" placeholder="Search tools..." oninput="renderTools()" />
   </header>
 
   <main>
     <section class="filters">
       <label>Category:
-        <select id="category">
+        <select id="category" onchange="renderTools()">
           <option value="">All</option>
-          <option value="Writing">Writing</option>
-          <option value="Design">Design</option>
-          <option value="Coding">Coding</option>
+          <option value="Text-to-Image">Text-to-Image</option>
+          <option value="Chatbot / LLM">Chatbot / LLM</option>
+          <option value="Search / LLM">Search / LLM</option>
+          <option value="Writing Assistant">Writing Assistant</option>
+          <option value="Text-to-Video">Text-to-Video</option>
+          <option value="3D Generation">3D Generation</option>
+          <option value="NLP / Enterprise">NLP / Enterprise</option>
+          <option value="Speech / Transcription">Speech / Transcription</option>
+          <option value="Entertainment / Chatbot">Entertainment / Chatbot</option>
+        </select>
+      </label>
+
+      <label>Sort:
+        <select id="sort" onchange="renderTools()">
+          <option value="default">Default</option>
+          <option value="updated">Most Recent Update</option>
         </select>
       </label>
     </section>
@@ -39,7 +52,6 @@
     <p>© 2025 AI Tool Directory</p>
   </footer>
 
-  <!-- Your App Code -->
   <script src="script.js"></script>
 </body>
 </html>
