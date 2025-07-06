@@ -38,4 +38,4 @@ This project provides a web interface for browsing AI tools, filtering by catego
 
 1. Fork or clone this repo:
    ```bash
-   git clone https://github.com/your-username/ai-tool-directory.git 
+   git clone https://github.com/Learnerproios/aitdirectory.git 
