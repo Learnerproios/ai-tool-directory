@@ -1,7 +1,7 @@
 // Initialize Supabase
 const { createClient } = supabase;
-const supabaseUrl = "YOUR_SUPABASE_PROJECT_URL"; // Replace with your Supabase Project URL
-const supabaseAnonKey = "YOUR_SUPABASE_ANON_KEY"; // Replace with your Supabase Anon Key
+const supabaseUrl = "YOUR_SUPABASE_PROJECT_URL"; // Replace with your Supabase URL
+const supabaseAnonKey = "YOUR_SUPABASE_ANON_KEY"; // Replace with your Anon Key
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -32,14 +32,29 @@ async function fetchTools() {
 // Render tools
 function renderTools() {
   const toolList = document.getElementById("tool-list");
-  toolList.innerHTML = "";
+  const selectedCategory = document.getElementById("category").value;
+  const sortBy = document.getElementById("sort").value;
 
-  tools.forEach((tool) => {
+  let displayTools = [...tools];
+
+  // Filter by category
+  if (selectedCategory) {
+    displayTools = displayTools.filter(tool => tool.category === selectedCategory);
+  }
+
+  // Sort by most recent update
+  if (sortBy === "updated") {
+    displayTools.sort((a, b) => new Date(b.update) - new Date(a.update));
+  }
+
+  toolList.innerHTML = "";
+  displayTools.forEach((tool) => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
       <h3>${tool.name}</h3>
       <p>${tool.description}</p>
+      <small>Last updated: ${new Date(tool.update).toLocaleDateString()}</small><br/>
       <a href="${tool.url}" target="_blank">Visit</a><br/>
       <button onclick='toggleFavorite(${tool.id})'>Add to Favorites</button>
     `;
