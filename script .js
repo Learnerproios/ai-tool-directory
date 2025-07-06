@@ -1,73 +1,103 @@
-const tools = [
-  { id: 1, name: "ChatGPT", description: "Powerful language model.", category: "Writing", url: "https://chat.openai.com " },
-  { id: 2, name: "MidJourney", description: "Generates stunning images from text.", category: "Design", url: "https://www.midjourney.com " },
-  { id: 3, name: "GitHub Copilot", description: "AI pair programmer.", category: "Coding", url: "https://github.com/features/copilot " },
-  { id: 4, name: "Canva AI", description: "Create visuals easily.", category: "Design", url: "https://canva.com " },
-  { id: 5, name: "Grammarly", description: "Write clearly and avoid mistakes.", category: "Writing", url: "https://grammarly.com " }
-];
+// Initialize Supabase
+const { createClient } = supabase;
+const supabaseUrl = "YOUR_SUPABASE_PROJECT_URL"; // Replace with your Supabase Project URL
+const supabaseAnonKey = "YOUR_SUPABASE_ANON_KEY"; // Replace with your Supabase Anon Key
 
-let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Mock user ID (replace with real auth later)
+const userId = "user123";
+
+// Tools list
+let tools = [];
+
+// Load on page load
+document.addEventListener("DOMContentLoaded", () => {
+  fetchTools();
+});
+
+// Fetch tools from Supabase
+async function fetchTools() {
+  const { data, error } = await supabase.from("tools").select("*");
+  if (error) {
+    console.error("Error fetching tools:", error);
+    return;
+  }
+
+  tools = data;
+  renderTools();
+  renderFavorites();
+}
+
+// Render tools
 function renderTools() {
-  const list = document.getElementById("tool-list");
-  const query = document.getElementById("search").value.toLowerCase();
-  const category = document.getElementById("category").value;
+  const toolList = document.getElementById("tool-list");
+  toolList.innerHTML = "";
 
-  const filtered = tools.filter(tool => {
-    return (
-      tool.name.toLowerCase().includes(query) &&
-      (!category || tool.category === category)
-    );
-  });
-
-  list.innerHTML = "";
-  filtered.forEach(tool => {
+  tools.forEach((tool) => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
       <h3>${tool.name}</h3>
       <p>${tool.description}</p>
-      <a href="${tool.url}" target="_blank">Visit</a>
-      <br/>
-      <button class="${favorites.includes(tool.id) ? 'unfav' : 'fav'}" onclick='toggleFavorite(${tool.id})'>
-        ${favorites.includes(tool.id) ? 'Remove Favorite' : 'Add to Favorites'}
-      </button>
+      <a href="${tool.url}" target="_blank">Visit</a><br/>
+      <button onclick='toggleFavorite(${tool.id})'>Add to Favorites</button>
     `;
-    list.appendChild(card);
+    toolList.appendChild(card);
   });
 }
 
-function toggleFavorite(id) {
-  if (favorites.includes(id)) {
-    favorites = favorites.filter(f => f !== id);
+// Toggle favorite
+async function toggleFavorite(toolId) {
+  // Check if already favorited
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("*")
+    .eq("tool_id", toolId)
+    .eq("user_id", userId);
+
+  if (error) return console.error("Error checking favorite:", error);
+
+  if (data.length === 0) {
+    // Add to favorites
+    const { error: insertError } = await supabase
+      .from("favorites")
+      .insert([{ tool_id: toolId, user_id: userId }]);
+    if (insertError) return console.error("Error adding favorite:", insertError);
   } else {
-    favorites.push(id);
+    // Remove from favorites
+    const { error: deleteError } = await supabase
+      .from("favorites")
+      .delete()
+      .eq("tool_id", toolId)
+      .eq("user_id", userId);
+    if (deleteError) return console.error("Error removing favorite:", deleteError);
   }
-  localStorage.setItem("favorites", JSON.stringify(favorites));
-  renderTools();
+
   renderFavorites();
 }
 
-function renderFavorites() {
-  const favList = document.getElementById("favorites");
-  favList.innerHTML = "";
+// Render favorites
+async function renderFavorites() {
+  const favoritesDiv = document.getElementById("favorites");
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("tool_id")
+    .eq("user_id", userId);
 
-  const favTools = tools.filter(t => favorites.includes(t.id));
-  if (favTools.length === 0) {
-    favList.innerHTML = "<p>No favorites yet.</p>";
+  if (error || !data) {
+    favoritesDiv.innerHTML = "<p>No favorites yet.</p>";
     return;
   }
 
-  favTools.forEach(tool => {
-    const p = document.createElement("div");
-    p.innerHTML = `<strong>${tool.name}</strong>`;
-    favList.appendChild(p);
+  favoritesDiv.innerHTML = "<h3>Saved Favorites</h3>";
+
+  data.forEach(({ tool_id }) => {
+    const tool = tools.find(t => t.id === tool_id);
+    if (!tool) return;
+
+    const p = document.createElement("p");
+    p.textContent = tool.name;
+    favoritesDiv.appendChild(p);
   });
 }
-
-document.getElementById("search").addEventListener("input", renderTools);
-document.getElementById("category").addEventListener("change", renderTools);
-
-// Initial render
-renderTools();
-renderFavorites();
